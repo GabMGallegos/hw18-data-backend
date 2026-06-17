@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const customerSchema = new mongoose.Schema(
+const vinylSchema = new mongoose.Schema(
     {
         serial_number: {
             type: Number,
@@ -35,4 +35,4 @@ const customerSchema = new mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model('Vinyl', customerSchema);
+module.exports = mongoose.model('Vinyl', vinylSchema);
