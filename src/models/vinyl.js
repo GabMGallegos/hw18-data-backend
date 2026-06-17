@@ -2,32 +2,37 @@ const mongoose = require('mongoose');
 
 const customerSchema = new mongoose.Schema(
     {
-        id: {
+        serial_number: {
             type: Number,
             unique: true,
             sparse: true,
             index: true
         },
-        name: {
+        brand: {
             type: String,
             required: true,
             trim: true
         },
-        age: {
+        model: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        time_record: {
             type: Number,
             required: true,
             min: 0
         },
-        moneySpent: {
+        qualitydisk: {
             type: Number,
             required: true,
             min: 0
         }
     },
     {
-        collection: 'Customer',
+        collection: 'Vinyl',
         timestamps: true
     }
 );
 
-module.exports = mongoose.model('Customer', customerSchema);
+module.exports = mongoose.model('Vinyl', customerSchema);

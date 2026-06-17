@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const Customer = require('../models/customer');
+const Vinyl = require('../models/vinyl');
 
 const router = express.Router();
 
@@ -16,13 +16,13 @@ function parseNumber(value, fieldName) {
     return parsedValue;
 }
 
-async function getNextCustomerId() {
-    const lastCustomer = await Customer.findOne({ id: { $type: 'number' } })
-        .sort({ id: -1 })
-        .select('id -_id')
+async function getNextVinylId() {
+    const lastVinyl = await Vinyl.findOne({ serial_number: { $type: 'number' } })
+        .sort({ serial_number: -1 })
+        .select('serial_number -_id')
         .lean();
 
-    return (lastCustomer?.id || 0) + 1;
+    return (lastVinyl?.serial_number || 0) + 1;
 }
 
 router.get('/health', (req, res) => {
@@ -33,49 +33,49 @@ router.get('/health', (req, res) => {
     });
 });
 
-router.get('/customers', async (req, res, next) => {
+router.get('/vinyls', async (req, res, next) => {
     try {
-        const customers = await Customer.find().sort({ id: 1 });
-        res.json(customers);
+        const vinyls = await Vinyl.find().sort({ serial_number: 1 });
+        res.json(vinyls);
     } catch (error) {
         next(error);
     }
 });
 
-router.get('/customers/name-fields', async (req, res, next) => {
+router.get('/vinyls/name-fields', async (req, res, next) => {
     try {
-        const customers = await Customer.find({}, 'id name -_id').sort({ id: 1 });
-        res.json(customers);
+        const vinyls = await Vinyl.find({}, 'serial_number brand -_id').sort({ serial_number: 1 });
+        res.json(vinyls);
     } catch (error) {
         next(error);
     }
 });
 
-router.get('/customers/age-fields', async (req, res, next) => {
+router.get('/vinyls/age-fields', async (req, res, next) => {
     try {
-        const customers = await Customer.find({}, 'id name age -_id').sort({ id: 1 });
-        res.json(customers);
+        const vinyls = await Vinyl.find({}, 'serial_number brand time_record -_id').sort({ serial_number: 1 });
+        res.json(vinyls);
     } catch (error) {
         next(error);
     }
 });
 
-router.get('/customers/money-spent-fields', async (req, res, next) => {
+router.get('/vinyls/qualitydisk-fields', async (req, res, next) => {
     try {
-        const customers = await Customer.find({}, 'id name moneySpent -_id').sort({ id: 1 });
-        res.json(customers);
+        const vinyls = await Vinyl.find({}, 'serial_number brand qualitydisk -_id').sort({ serial_number: 1 });
+        res.json(vinyls);
     } catch (error) {
         next(error);
     }
 });
 
-router.get('/customers/money-spent/total', async (req, res, next) => {
+router.get('/vinyls/qualitydisk/total', async (req, res, next) => {
     try {
-        const result = await Customer.aggregate([
+        const result = await Vinyl.aggregate([
             {
                 $group: {
                     _id: null,
-                    totalMoneySpent: { $sum: '$moneySpent' }
+                    totalMoneySpent: { $sum: '$qualitydisk' }
                 }
             },
             {
@@ -92,18 +92,18 @@ router.get('/customers/money-spent/total', async (req, res, next) => {
     }
 });
 
-router.get('/customers/count', async (req, res, next) => {
+router.get('/vinyls/count', async (req, res, next) => {
     try {
-        const totalCustomers = await Customer.countDocuments();
-        res.json({ totalCustomers });
+        const totalVinyls = await Vinyl.countDocuments();
+        res.json({ totalVinyls });
     } catch (error) {
         next(error);
     }
 });
 
-router.get('/customers/summary', async (req, res, next) => {
+router.get('/vinyls/summary', async (req, res, next) => {
     try {
-        const result = await Customer.aggregate([
+        const result = await Vinyl.aggregate([
             {
                 $group: {
                     _id: null,
@@ -135,10 +135,10 @@ router.get('/customers/summary', async (req, res, next) => {
     }
 });
 
-router.get('/customers/by-name/:name', async (req, res, next) => {
+router.get('/vinyls/by-name/:name', async (req, res, next) => {
     try {
         const { name } = req.params;
-        const customers = await Customer.find({
+        const customers = await Vinyl.find({
             name: { $regex: name, $options: 'i' }
         }).sort({ id: 1 });
 
@@ -148,17 +148,17 @@ router.get('/customers/by-name/:name', async (req, res, next) => {
     }
 });
 
-router.get('/customers/by-age/:age', async (req, res, next) => {
+router.get('/vinyls/by-age/:age', async (req, res, next) => {
     try {
         const age = parseNumber(req.params.age, 'Age');
-        const customers = await Customer.find({ age }).sort({ id: 1 });
+        const customers = await Vinyl.find({ age }).sort({ id: 1 });
         res.json(customers);
     } catch (error) {
         next(error);
     }
 });
 
-router.get('/customers/by-money-spent-range/:min/:max', async (req, res, next) => {
+router.get('/vinyls/by-money-spent-range/:min/:max', async (req, res, next) => {
     try {
         const min = parseNumber(req.params.min, 'Minimum money spent');
         const max = parseNumber(req.params.max, 'Maximum money spent');
@@ -169,7 +169,7 @@ router.get('/customers/by-money-spent-range/:min/:max', async (req, res, next) =
             });
         }
 
-        const customers = await Customer.find({
+        const customers = await Vinyl.find({
             moneySpent: {
                 $gte: min,
                 $lte: max
@@ -182,13 +182,13 @@ router.get('/customers/by-money-spent-range/:min/:max', async (req, res, next) =
     }
 });
 
-router.get('/customers/:id', async (req, res, next) => {
+router.get('/vinyls/:id', async (req, res, next) => {
     try {
-        const id = parseNumber(req.params.id, 'Customer id');
-        const customer = await Customer.findOne({ id });
+        const id = parseNumber(req.params.id, 'Vinyl id');
+        const customer = await Vinyl.findOne({ id });
 
         if (!customer) {
-            return res.status(404).json({ message: 'Customer not found' });
+            return res.status(404).json({ message: 'Vinyl not found' });
         }
 
         res.json(customer);
@@ -197,18 +197,18 @@ router.get('/customers/:id', async (req, res, next) => {
     }
 });
 
-router.post('/customers', async (req, res, next) => {
+router.post('/vinyls', async (req, res, next) => {
     try {
         const customerData = {
             id: req.body.id === undefined || req.body.id === null || req.body.id === ''
                 ? await getNextCustomerId()
-                : parseNumber(req.body.id, 'Customer id'),
+                : parseNumber(req.body.id, 'Vinyl id'),
             name: String(req.body.name).trim(),
             age: parseNumber(req.body.age, 'Age'),
             moneySpent: parseNumber(req.body.moneySpent, 'Money spent')
         };
 
-        const customer = await Customer.create(customerData);
+        const customer = await Vinyl.create(customerData);
         res.status(201).json(customer);
     } catch (error) {
         if (error.code === 11000) {
@@ -219,9 +219,9 @@ router.post('/customers', async (req, res, next) => {
     }
 });
 
-router.put('/customers/:id', async (req, res, next) => {
+router.put('/vinyls/:id', async (req, res, next) => {
     try {
-        const id = parseNumber(req.params.id, 'Customer id');
+        const id = parseNumber(req.params.id, 'Vinyl id');
         const updateData = {};
 
         if (req.body.name !== undefined) {
@@ -236,14 +236,14 @@ router.put('/customers/:id', async (req, res, next) => {
             updateData.moneySpent = parseNumber(req.body.moneySpent, 'Money spent');
         }
 
-        const customer = await Customer.findOneAndUpdate(
+        const customer = await Vinyl.findOneAndUpdate(
             { id },
             updateData,
             { new: true, runValidators: true }
         );
 
         if (!customer) {
-            return res.status(404).json({ message: 'Customer not found' });
+            return res.status(404).json({ message: 'Vinyl not found' });
         }
 
         res.json(customer);
@@ -254,15 +254,15 @@ router.put('/customers/:id', async (req, res, next) => {
 
 router.delete('/customers/:id', async (req, res, next) => {
     try {
-        const id = parseNumber(req.params.id, 'Customer id');
-        const customer = await Customer.findOneAndDelete({ id });
+        const id = parseNumber(req.params.id, 'Vinyl id');
+        const customer = await Vinyl.findOneAndDelete({ id });
 
         if (!customer) {
-            return res.status(404).json({ message: 'Customer not found' });
+            return res.status(404).json({ message: 'Vinyl not found' });
         }
 
         res.json({
-            message: 'Customer deleted successfully',
+            message: 'Vinyl deleted successfully',
             customer
         });
     } catch (error) {

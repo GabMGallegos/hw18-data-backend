@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDatabase = require('./config/database');
-const dataCustomerRoutes = require('./routes/dataCustomerRoutes');
+const dataCustomerRoutes = require('./routes/dataVinylRoutes');
 
 const app = express();
 const port = process.env.PORT || 4010;
