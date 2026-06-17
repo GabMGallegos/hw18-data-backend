@@ -1,0 +1,22 @@
+{
+    "name": "hw18-data-backend",
+    "version": "1.0.0",
+    "description": "Data access backend for HW18 Customer Table. Only this service connects to MongoDB.",
+    "main": "src/server.js",
+    "type": "commonjs",
+    "scripts": {
+        "start": "node src/server.js",
+        "dev": "nodemon src/server.js"
+    },
+    "author": "Gabriel Molina",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.3",
+        "express": "^5.2.1",
+        "mongoose": "^9.6.3"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.14"
+    }
+}

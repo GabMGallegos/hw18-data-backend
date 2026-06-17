@@ -1,0 +1,14 @@
+[Unit]
+Description=HW18 Data Backend
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/hw18-data-backend
+ExecStart=/usr/bin/node src/server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
